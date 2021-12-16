@@ -1,0 +1,270 @@
+<!doctype html>
+<html>
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sleeping Habits</title>
+    <script src="./source/vue.global.prod.js"></script>
+</head>
+
+<body>
+    <div id="sleep" class="app">
+        <div id="wrap">
+            <div id="question">
+                <h1 style="color:rgb(218, 106, 14);">IBMS4-ICA3-PE:GROUP3</h1>
+                <h1>{{ showResult ? curResultObj.title : curQuesObj.title }}</h1>
+                <h3 id="text" > {{ showResult ? curResultObj.text : curQuesObj.text }}</h3>
+            </div>
+            <div class="contentWrap" v-show="!showResult">
+                <div class="contentBox" @click="clickLeft">
+                    <img class="contentImg" alt="left image" :src="curQuesObj.leftImg" />
+                    <div class="discription">
+                        <h2>{{ curQuesObj.leftDiscription }}</h2>
+                    </div>
+                </div>
+                <div class="contentBox" @click="clickRight">
+                    <img class="contentImg" alt="right image" :src="curQuesObj.rightImg" />
+                    <div class="discription">
+                        <h2>{{ curQuesObj.rightDiscription }}</h2>
+                    </div>
+                </div>
+            </div>
+            <div class="resultWrap" v-if="showResult">
+                <div>
+                    <img class="resultImg" alt="Vue logo" v-if="ismale" :src="curResultObj.maleImg" />
+                    <img class="resultImg" alt="Vue logo" v-if="!ismale" :src="curResultObj.femaleImg" />
+                </div>
+                <div>
+                    <h3> {{ showResult ? curResultObj.link : " " }}</h3>
+                </div>
+                <div>
+                    <video width="640" :src="videoUrl" type="video/mp4" controls="controls"></video>
+                </div>
+            </div>
+            <button @click="prev">PREV</button>
+        </div>
+    </div>
+</body>
+
+<script>
+    Vue.createApp({
+        data() {
+            return {
+
+                videoUrl: "./source/IBMS4-PE.mp4",
+
+                questions: {
+                    gender: {
+                        title: "1. What’s your gender?",
+                        leftImg: "./image/girl.png",
+                        leftDiscription: "A. Girl",
+                        rightImg: "./image/boy.png",
+                        rightDiscription: "B. Boy",
+                    },
+                    bedtime: {
+                        title: "2. Average time to fall asleep?",
+                        leftImg: "./image/before12.png",
+                        leftDiscription: "A. Before 12:00 p.m.",
+                        rightImg: "./image/after12.png",
+                        rightDiscription: "B. After 12:00 p.m.",
+                    },
+                    healthy: {
+                        title: "3. Do you have a regular sleep schedule?",
+                        text:"(A regular sleep schedule refers to a daily routine consisting of fixed times for falling asleep at night and waking up in the morning)",
+                        leftImg: "./image/regular.png",
+                        leftDiscription: "A. Yes",
+                        rightImg: "./image/irregular.png",
+                        rightDiscription: "B. No",
+                    },
+                    whatToDo: {
+                        title: "4. What do you tend to do when you stay up late?",
+                        leftImg: "./image/water.png",
+                        leftDiscription: "A. Avoid snacking at night, especially for those unhealthy food.",
+                        rightImg: "./image/hamburger.png",
+                        rightDiscription: "B. You're seized by a craving for something sweet, fried, heavy flavor, and anything that should not be eaten too much, but you just can not stop yourself from eating them.",
+                    },
+                    feel: {
+                        title: "5. What’s your general state after staying up late",
+                        leftImg: "./image/refresh.png",
+                        leftDiscription: "A. Feel rested and refreshed, no difference from usual.",
+                        rightImg: "./image/depress.png",
+                        rightDiscription: "B. Feel tired, dizzy and even a little depressed.",
+                    },
+                    remedy: {
+                        title: "6. Will you take any medial measures after once staying up late?",
+                        leftImg: "./image/care.png",
+                        leftDiscription: "A. Yes, feel regret for staying up late this time and try not doing that again. Have a light diet and skin care.",
+                        rightImg: "./image/nocare.png",
+                        rightDiscription: "B. No, keep staying up late.",
+                    },
+                },
+
+                results: {
+                    good: {
+                        title: "Excellent!",
+                        text: "You have a really good sleep schedule. You will absolutely benefit from the good sleep schedule, radiant with health and beauty. (Images taken from the Internet)",
+                        maleImg: "./image/boy1.png",
+                        femaleImg: "./image/girl1.png",
+                        link: "Let's watch a video to learn more about the potential dangers of staying up late"
+                    },
+                    fat: {
+                        title: "Great!",
+                        text: "You have a relatively good sleep schedule. Please try to keep your schedule and improve it if possible, or else you may have risk of getting fat. (Images taken from the Internet)",
+                        maleImg: "./image/boy2.png",
+                        femaleImg: "./image/girl2.png",
+                        link: "Let's watch a video to learn more about the potential dangers of staying up late"
+                    },
+                    fatUgly: {
+                        title: "Not okay",
+                        text: "You have a relatively poor sleep schedule, but it’s not too late to start correcting your bad habits. Try to reduce the number of late nights, or else you are exposed to increasing risk of health problems. (Images taken from the Internet)",
+                        maleImg: "./image/boy3.png",
+                        femaleImg: "./image/girl3.png",
+                        link: "Let's watch a video to learn more about the potential dangers of staying up late"
+                    },
+                    fatUglyStupid: {
+                        title: "Bad",
+                        text: "You have a poor sleep schedule and always stay up late. You are at risk of several health problems, including obesity, skin problem, affected memory and so on. Please reset your sleep schedule as soon as possible and keep this verse in mind “Nor blear-eyed wisdom out of midnight oil”. (Images taken from the Internet)",
+                        maleImg: "./image/boy4.png",
+                        femaleImg: "./image/girl4.png",
+                        link: "Let's watch a video to learn more about the potential dangers of staying up late"
+                    }
+                },
+
+                curResultIndex: 0,
+
+                showResult: false,
+
+                curQuesIndex: 0,
+
+                answerPath: [],
+                selectPath: ""
+            }
+        },
+        computed: {
+            resultId() {
+                return Object.keys(this.results)
+            },
+            quesId() {
+                return Object.keys(this.questions)
+            },
+            curQuesObj() {
+                return this.questions[this.quesId[this.curQuesIndex]]
+            },
+            curResultObj() {
+                return this.results[this.resultId[this.curResultIndex]]
+            },
+            ismale(){
+                return this.answerPath[0]==this.questions.gender.rightDiscription;
+            }
+
+        },
+        methods: {
+
+            checkPath() {
+                // console.log(this.selectPath, this.answerPath)
+                if (this.selectPath.length == 6) {
+                    this.curResultIndex = 3;
+                    this.showResult = true;
+                }
+                if (this.selectPath.length == 1) {
+                    return
+                }
+                switch (this.selectPath.slice(1, this.selectPath.length)) {
+                    case "ll":
+                        this.curResultIndex = 0;
+                        this.showResult = true;
+                        break;
+                    case "lr":
+                    case "rl":
+                    case "rrlll":
+                        this.curResultIndex = 1;
+                        this.showResult = true;
+                        break;
+                    case "rrllr":
+                    case "rrlrl":
+                        this.curResultIndex = 2;
+                        this.showResult = true;
+                        break;
+                    default:
+                        break;
+                }
+            },
+
+            prev() {
+                // console.log("click prev");
+                if (this.showResult = true) {
+                    this.showResult = false
+                }
+
+                if (0 <= this.curQuesIndex - 1) {
+                    this.curQuesIndex -= 1
+                    this.answerPath.pop()
+                    this.selectPath = this.selectPath.slice(0, this.selectPath.length - 1)
+                }
+                // console.log(this.selectPath, this.answerPath)
+            },
+
+            next() {
+                // console.log("click next")
+                this.checkPath()
+                if (this.curQuesIndex + 1 <= this.quesId.length - 1) {
+                    this.curQuesIndex += 1
+                } else {
+                    // alert("handle in pathCheck")
+                    this.answerPath.pop()
+                    this.selectPath = this.selectPath.slice(0, this.selectPath.length - 1)
+                }
+            },
+
+            clickLeft() {
+                // console.log("click left")
+                this.answerPath.push(this.curQuesObj.leftDiscription)
+                this.selectPath += "l"
+                this.next()
+            },
+
+            clickRight() {
+                // console.log("click right")
+                this.answerPath.push(this.curQuesObj.rightDiscription)
+                this.selectPath += "r"
+                this.next()
+            }
+        }
+    }).mount('#sleep');
+</script>
+
+<style>
+    .app {
+        font-family: Avenir, Helvetica, Arial, sans-serif;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        text-align: center;
+        color: #2c3e50;
+        margin: 60px 10vw;
+    }
+
+    .contentWrap {
+        /* background-color: bisque; */
+        display: flex;
+        justify-content: center;
+    }
+
+    .contentBox {
+        margin: 10vh 8vw;
+    }
+
+    .discription {
+        color: #2c3e50;
+    }
+
+    .contentImg{
+        height: 30vh;
+    }
+
+    .resultImg{
+        height: 50vh;
+    }
+</style>
+
+</html>
